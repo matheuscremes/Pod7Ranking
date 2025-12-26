@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking de Vendas POD7</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: #e5e7eb;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 420px;
+    background: #020617;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.5);
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: clamp(1.3rem, 5vw, 1.6rem);
+    letter-spacing: 0.5px;
+  }
+
+  ol { list-style: none; padding: 0; margin: 0; }
+
+  li {
+    position: relative;
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: clamp(0.95rem, 4vw, 1.05rem);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+
+  li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.4);
+  }
+
+  li span { opacity: .85; font-size: clamp(0.85rem, 3.5vw, .95rem); }
+
+  /* Destaques */
+  li.first {
+    background: linear-gradient(135deg, #facc15, #eab308);
+    color: #020617;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 0 25px rgba(250,204,21,0.6);
+    animation: pulse 2s infinite;
+  }
+
+  li.second { background: linear-gradient(135deg, #e5e7eb, #9ca3af); color: #020617; border: none; }
+  li.third { background: linear-gradient(135deg, #fb923c, #f97316); color: #020617; border: none; }
+
+  .trophy { display: flex; align-items: center; gap: 8px; }
+  .trophy-icon {
+    width: 28px; height: 28px;
+    background: #020617;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    box-shadow: inset 0 0 0 2px #facc15;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 20px rgba(250,204,21,0.6); }
+    50% { box-shadow: 0 0 35px rgba(250,204,21,0.9); }
+    100% { box-shadow: 0 0 20px rgba(250,204,21,0.6); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🏆 Ranking de Vendas POD7</h1>
+  <ol id="ranking"></ol>
+</div>
+
+<script>
+fetch("https://opensheet.elk.sh/1yxyVp8UAs8qnR68xDDUVGdmt9a-_yxnzNNRul9CMQyQ/Página1")
+  .then(res => res.json())
+  .then(dados => {
+    // Converte vendas para número
+    dados.forEach(p => p.Vendas = Number(p.Vendas));
+    // Ordena do maior para o menor
+    dados.sort((a,b)=>b.Vendas - a.Vendas);
+
+    const ranking = document.getElementById("ranking");
+    ranking.innerHTML = "";
+
+    // Descobre o maior valor de vendas
+    const maiorVenda = Math.max(...dados.map(p => p.Vendas));
+
+    // Se maiorVenda <= 0, ninguém tem destaque
+    const temGanhador = maiorVenda > 0;
+
+    dados.forEach((pessoa, i) => {
+      const li = document.createElement("li");
+
+      // conteúdo padrão
+      let conteudo = `<strong>${pessoa.Nome}</strong><span>${pessoa.Vendas} vendas</span>`;
+
+      if(temGanhador) {
+        if(i===0 && pessoa.Vendas === maiorVenda) {
+          li.classList.add("first");
+          conteudo = `
+            <div class="trophy">
+              <span class="trophy-icon">🏆</span>
+              <strong>${pessoa.Nome}</strong>
+            </div>
+            <span>${pessoa.Vendas} vendas</span>
+          `;
+        } else if(i===1 && pessoa.Vendas>0) {
+          li.classList.add("second");
+        } else if(i===2 && pessoa.Vendas>0) {
+          li.classList.add("third");
+        }
+      }
+
+      li.innerHTML = conteudo;
+      ranking.appendChild(li);
+    });
+  });
+</script>
+
+</body>
+</html>
